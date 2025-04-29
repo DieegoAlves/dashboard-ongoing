@@ -1,0 +1,49 @@
+// Prisma schema for ONGOING Dashboard
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id              String   @id @default(uuid())
+  name            String
+  email           String   @unique
+  password        String   // hashed password
+  role            Role     @default(CLIENT)
+  contractedHours Int
+  accumulatedHours Int     @default(0)
+  tasks           Task[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  user        User       @relation(fields: [userId], references: [id])
+  userId      String
+
+  clickupLink String?
+  description String
+  hoursSpent  Int
+  date        DateTime   @default(now())
+  status      TaskStatus @default(COMPLETED)
+
+  createdAt   DateTime   @default(now())
+}
